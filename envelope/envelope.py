@@ -1358,16 +1358,15 @@ class Envelope:
             raise ValueError("failed to load certificate from file")
 
         # encrypt signed email with recipient's cert
-        envelope_builder = pkcs7.PKCS7EnvelopeBuilder().set_data(signed_email)
+        envelope_builder = pkcs7.PKCS7EnvelopeBuilder().set_data(signed_email).set_content_encryption_algorithm(algorithms.AES256)
+        
         envelope_builder = envelope_builder.add_recipient(pubkey)
 
         for recip in recipient_certs:
             envelope_builder = envelope_builder.add_recipient(recip)
 
         options = [pkcs7.PKCS7Options.Binary]
-        encrypted_email = envelope_builder.set_content_encryption_algorithm(
-        algorithms.AES256
-        ).encrypt(serialization.Encoding.SMIME, options)
+        encrypted_email = envelope_builder.encrypt(serialization.Encoding.SMIME, options)
         return encrypted_email
 
     def smime_encrypt_only(self, email, encrypt):
@@ -1389,14 +1388,12 @@ class Envelope:
             recipient_certs.append(c)
 
         options = [pkcs7.PKCS7Options.Binary]
-        encrypted_email = pkcs7.PKCS7EnvelopeBuilder().set_data(email)
+        encrypted_email = pkcs7.PKCS7EnvelopeBuilder().set_data(email).set_content_encryption_algorithm(algorithms.AES256)
 
         for recip in recipient_certs:
             encrypted_email = encrypted_email.add_recipient(recip)
 
-        encrypted_email = encrypted_email.set_content_encryption_algorithm(
-        algorithms.AES256
-        ).encrypt(serialization.Encoding.SMIME, options)
+        encrypted_email = encrypted_email.encrypt(serialization.Encoding.SMIME, options)
 
         return encrypted_email
 
