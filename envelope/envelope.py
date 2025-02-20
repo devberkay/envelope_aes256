@@ -23,7 +23,7 @@ from pathlib import Path
 from quopri import decodestring
 from types import GeneratorType
 from typing import Literal, Union, Optional, Any
-
+from cryptography.hazmat.primitives.ciphers import algorithms
 from .address import Address, _getaddresses
 from .attachment import Attachment
 from .constants import ISSUE_LINK, smime_import_error, gnupg, CRLF, AUTO, PLAIN, HTML, SIMULATION, SAFE_LOCALE
@@ -1365,7 +1365,9 @@ class Envelope:
             envelope_builder = envelope_builder.add_recipient(recip)
 
         options = [pkcs7.PKCS7Options.Binary]
-        encrypted_email = envelope_builder.encrypt(serialization.Encoding.SMIME, options)
+        encrypted_email = envelope_builder.set_content_encryption_algorithm(
+        algorithms.AES256
+        ).encrypt(serialization.Encoding.SMIME, options)
         return encrypted_email
 
     def smime_encrypt_only(self, email, encrypt):
@@ -1392,7 +1394,9 @@ class Envelope:
         for recip in recipient_certs:
             encrypted_email = encrypted_email.add_recipient(recip)
 
-        encrypted_email = encrypted_email.encrypt(serialization.Encoding.SMIME, options)
+        encrypted_email = encrypted_email.set_content_encryption_algorithm(
+        algorithms.AES256
+        ).encrypt(serialization.Encoding.SMIME, options)
 
         return encrypted_email
 
