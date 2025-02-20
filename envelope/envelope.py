@@ -23,7 +23,6 @@ from pathlib import Path
 from quopri import decodestring
 from types import GeneratorType
 from typing import Literal, Union, Optional, Any
-from cryptography.hazmat.primitives.ciphers import algorithms
 from .address import Address, _getaddresses
 from .attachment import Attachment
 from .constants import ISSUE_LINK, smime_import_error, gnupg, CRLF, AUTO, PLAIN, HTML, SIMULATION, SAFE_LOCALE
@@ -1259,6 +1258,7 @@ class Envelope:
 
     def _import_cryptoraphy_modules(self):
         try:
+            from cryptography.hazmat.primitives.ciphers import algorithms
             from cryptography.hazmat.primitives.serialization import load_pem_private_key, pkcs7
             from cryptography.x509 import load_pem_x509_certificate
             from cryptography.hazmat.primitives import hashes, serialization
@@ -1267,7 +1267,7 @@ class Envelope:
             raise ImportError(smime_import_error)
         
     def smime_sign_only(self, email, sign):
-        load_pem_private_key, pkcs7, load_pem_x509_certificate, hashes, serialization = self._import_cryptoraphy_modules()
+        load_pem_private_key, pkcs7, load_pem_x509_certificate, hashes, serialization, algorithms = self._import_cryptoraphy_modules()
         # get sender's cert
         # cert and private key can be one file
 
@@ -1308,7 +1308,7 @@ class Envelope:
         return signed_email
 
     def smime_sign_encrypt(self, email, sign, encrypt):
-        load_pem_private_key, pkcs7, load_pem_x509_certificate, hashes, serialization = self._import_cryptoraphy_modules()
+        load_pem_private_key, pkcs7, load_pem_x509_certificate, hashes, serialization, algorithms = self._import_cryptoraphy_modules()
 
         if self._cert:
             sender_cert = self._cert
@@ -1372,7 +1372,7 @@ class Envelope:
 
     def smime_encrypt_only(self, email, encrypt):
 
-        _, pkcs7, load_pem_x509_certificate, _, serialization = self._import_cryptoraphy_modules()
+        _, pkcs7, load_pem_x509_certificate, _, serialization, algorithms = self._import_cryptoraphy_modules()
 
         if self._cert:
             certificates = [self._cert]
